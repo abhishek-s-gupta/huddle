@@ -53,7 +53,7 @@ function requireAdmin(req, res, next) {
   requireAuth(req, res, () => {
     if (!req.user?.isAdmin) {
       if (req.accepts('html') && req.method === 'GET') {
-        return res.status(403).sendFile(require('path').join(__dirname, '..', '..', 'public', '403.html'));
+        return res.status(403).sendFile(require('path').join(__dirname, '..', '..', 'public', '403.html'), { dotfiles: 'allow' });
       }
       return res.status(403).json({ error: 'Admin privileges required' });
     }

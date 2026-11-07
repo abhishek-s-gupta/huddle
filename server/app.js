@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(csrfCookieMiddleware);
 
 // Serve static assets from public directory
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public'), { dotfiles: 'allow' }));
 
 // API Routes
 // Note: csrfProtection protects mutating requests (/api/auth/signup, /api/auth/login, etc.)
@@ -57,34 +57,36 @@ app.use('/api/admin', (req, res, next) => {
   }
 });
 
+const sendFileOpts = { dotfiles: 'allow' };
+
 // Page Routes
 app.get('/', optionalAuth, (req, res) => {
   if (req.user) {
     return res.redirect('/dashboard');
   }
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'), sendFileOpts);
 });
 
 app.get('/dashboard', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'), sendFileOpts);
 });
 
 app.get('/lobby/:code', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'lobby.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'lobby.html'), sendFileOpts);
 });
 
 app.get('/room/:code', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'room.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'room.html'), sendFileOpts);
 });
 
 app.get('/admin', requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'admin.html'), sendFileOpts);
 });
 
 // Custom 404 handler
 app.use((req, res) => {
   if (req.accepts('html')) {
-    return res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'));
+    return res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'), sendFileOpts);
   }
   return res.status(404).json({ error: 'Resource not found' });
 });
@@ -93,7 +95,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled application error:', err);
   if (req.accepts('html')) {
-    return res.status(500).sendFile(path.join(__dirname, '..', 'public', '500.html'));
+    return res.status(500).sendFile(path.join(__dirname, '..', 'public', '500.html'), sendFileOpts);
   }
   return res.status(500).json({ error: 'Internal server error' });
 });

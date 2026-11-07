@@ -7,7 +7,8 @@
     "start": "node server/server.js",
     "start:https": "node scripts/start-https.js",
     "cert": "node scripts/generate-cert.js",
-    "test": "npx playwright test"
+    "test": "node tests/e2e/run-e2e.js",
+    "test:spec": "npx playwright test"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +27,8 @@
     "playwright": "^1.65.0",
     "selfsigned": "^5.5.0",
     "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
   }
 }

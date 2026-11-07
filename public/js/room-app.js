@@ -185,6 +185,7 @@ async function initCall() {
     bindSocketEvents();
     bindUIEvents();
     loadServerFiles();
+    window.__roomReady = true;
   } catch (err) {
     console.error('Initialization error:', err);
     showToast(err.message || 'Failed to enter meeting.', 'error');
