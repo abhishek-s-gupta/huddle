@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console — Huddle</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .admin-container {
+      max-width: 1040px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background-color: var(--bg-surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .admin-card {
+      background-color: var(--bg-surface);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      padding: 12px 20px;
+      border-bottom: var(--border-width) solid var(--border-color);
+      background-color: var(--bg-surface-subtle);
+    }
+
+    td {
+      padding: 14px 20px;
+      border-bottom: var(--border-width) solid var(--border-color);
+      font-size: var(--font-size-body);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-mark">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z" />
+        <rect x="3" y="6" width="12" height="12" rx="2" />
+      </svg>
+      <span>Huddle Admin</span>
+    </div>
+
+    <div class="user-profile">
+      <a href="/dashboard" class="btn btn-secondary" style="padding: 4px 12px; font-size: var(--font-size-meta);">Dashboard</a>
+      <button id="btn-theme-toggle" class="btn-icon" aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+        </svg>
+      </button>
+      <button id="btn-logout" class="btn btn-secondary" style="padding: 4px 12px; font-size: var(--font-size-meta);">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    <div class="admin-header">
+      <div>
+        <h1>System Administration</h1>
+        <p class="text-meta">Manage active meeting rooms, view registered members, and enforce platform controls.</p>
+      </div>
+      <button id="btn-refresh" class="btn btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="text-meta">Total Users</div>
+        <div class="stat-number" id="stat-users">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-meta">Active Rooms</div>
+        <div class="stat-number" id="stat-active-rooms">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-meta">Total Meetings</div>
+        <div class="stat-number" id="stat-total-rooms">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-meta">Audit Logs</div>
+        <div class="stat-number" id="stat-audit">0</div>
+      </div>
+    </div>
+
+    <!-- Active Rooms Section -->
+    <div class="section-title">
+      <h2>Active Rooms</h2>
+      <span class="text-meta" id="active-rooms-count">0 active</span>
+    </div>
+
+    <div class="admin-card">
+      <div style="overflow-x: auto;">
+        <table id="table-active-rooms">
+          <thead>
+            <tr>
+              <th>Room Code & Title</th>
+              <th>Host</th>
+              <th>Started At</th>
+              <th>Active Members</th>
+              <th>Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-active-rooms">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+      <div id="empty-active-rooms" style="display: none; padding: 32px; text-align: center; color: var(--text-secondary);">
+        No active meetings currently running.
+      </div>
+    </div>
+
+    <!-- Registered Users Section -->
+    <div class="section-title">
+      <h2>Registered Users</h2>
+      <span class="text-meta" id="users-count">0 users</span>
+    </div>
+
+    <div class="admin-card">
+      <div style="overflow-x: auto;">
+        <table id="table-users">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Display Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-users">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Confirmation Modal for Ending Room -->
+  <div class="modal-overlay" id="modal-confirm-end">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>End Meeting</h2>
+        <button class="btn-icon" id="btn-close-end-modal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p id="end-room-prompt">Are you sure you want to forcibly terminate this meeting? All participants will be disconnected immediately.</p>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-end">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-end">End Meeting</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+
+  <script type="module">
+    import { api } from '/js/api.js';
+
+    // Theme support
+    const savedTheme = localStorage.getItem('huddle_theme') || 'light';
+    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      else document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('huddle_theme', next);
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await api.logout();
+      window.location.href = '/';
+    });
+
+    let targetEndCode = null;
+    const modalEnd = document.getElementById('modal-confirm-end');
+    const btnCancelEnd = document.getElementById('btn-cancel-end');
+    const btnCloseEndModal = document.getElementById('btn-close-end-modal');
+    const btnConfirmEnd = document.getElementById('btn-confirm-end');
+
+    function openEndModal(code) {
+      targetEndCode = code;
+      document.getElementById('end-room-prompt').textContent = `Are you sure you want to terminate meeting "${code}"? All active participants will be ejected.`;
+      modalEnd.classList.add('active');
+    }
+
+    function closeEndModal() {
+      modalEnd.classList.remove('active');
+      targetEndCode = null;
+    }
+
+    btnCancelEnd.addEventListener('click', closeEndModal);
+    btnCloseEndModal.addEventListener('click', closeEndModal);
+    modalEnd.addEventListener('click', (e) => {
+      if (e.target === modalEnd) closeEndModal();
+    });
+
+    btnConfirmEnd.addEventListener('click', async () => {
+      if (!targetEndCode) return;
+      btnConfirmEnd.disabled = true;
+      btnConfirmEnd.textContent = 'Terminating...';
+
+      try {
+        await api.post(`/api/admin/rooms/${encodeURIComponent(targetEndCode)}/end`, {});
+        closeEndModal();
+        await loadOverview();
+      } catch (err) {
+        alert(err.message || 'Failed to end room.');
+      } finally {
+        btnConfirmEnd.disabled = false;
+        btnConfirmEnd.textContent = 'End Meeting';
+      }
+    });
+
+    async function loadOverview() {
+      try {
+        const data = await api.get('/api/admin/overview');
+        
+        // Stats
+        document.getElementById('stat-users').textContent = data.stats.totalUsers;
+        document.getElementById('stat-active-rooms').textContent = data.stats.activeRoomsCount;
+        document.getElementById('stat-total-rooms').textContent = data.stats.totalRoomsCount;
+        document.getElementById('stat-audit').textContent = data.stats.totalAuditLogs;
+
+        // Active Rooms
+        const tbodyRooms = document.getElementById('tbody-active-rooms');
+        const emptyRooms = document.getElementById('empty-active-rooms');
+        const roomsCount = document.getElementById('active-rooms-count');
+        tbodyRooms.innerHTML = '';
+        roomsCount.textContent = `${data.activeRooms.length} active`;
+
+        if (data.activeRooms.length === 0) {
+          emptyRooms.style.display = 'block';
+        } else {
+          emptyRooms.style.display = 'none';
+          data.activeRooms.forEach(room => {
+            const tr = document.createElement('tr');
+            const timeStr = new Date(room.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            tr.innerHTML = `
+              <td>
+                <div style="font-weight: 500;">${escapeHtml(room.title)}</div>
+                <div class="text-meta" style="font-family: monospace;">${escapeHtml(room.code)}</div>
+              </td>
+              <td>
+                <div>${escapeHtml(room.host_name)}</div>
+                <div class="text-meta">${escapeHtml(room.host_email)}</div>
+              </td>
+              <td class="text-meta">${timeStr}</td>
+              <td class="text-meta">${room.activeParticipants} participant${room.activeParticipants === 1 ? '' : 's'}</td>
+              <td>
+                <span class="badge-status ${room.isLocked ? 'badge-ended' : 'badge-active'}">
+                  ${room.isLocked ? 'Locked' : 'Open'}
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn btn-danger btn-end-room" data-code="${escapeHtml(room.code)}" style="padding: 4px 10px; font-size: var(--font-size-meta);">
+                  End
+                </button>
+              </td>
+            `;
+            tbodyRooms.appendChild(tr);
+          });
+
+          // Attach end room listeners
+          document.querySelectorAll('.btn-end-room').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const code = e.currentTarget.getAttribute('data-code');
+              openEndModal(code);
+            });
+          });
+        }
+
+        // Users
+        const tbodyUsers = document.getElementById('tbody-users');
+        const usersCount = document.getElementById('users-count');
+        tbodyUsers.innerHTML = '';
+        usersCount.textContent = `${data.users.length} users`;
+
+        data.users.forEach(u => {
+          const tr = document.createElement('tr');
+          const dateStr = new Date(u.created_at).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+          tr.innerHTML = `
+            <td class="text-meta" style="font-family: monospace;">#${u.id}</td>
+            <td style="font-weight: 500;">${escapeHtml(u.display_name)}</td>
+            <td class="text-meta">${escapeHtml(u.email)}</td>
+            <td>
+              <span class="badge-status ${u.isAdmin ? 'badge-active' : 'badge-ended'}">
+                ${u.isAdmin ? 'Admin' : 'Member'}
+              </span>
+            </td>
+            <td class="text-meta">${dateStr}</td>
+          `;
+          tbodyUsers.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('Failed to load admin overview:', err);
+        if (err.status === 403) {
+          window.location.href = '/dashboard';
+        }
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', loadOverview);
+
+    loadOverview();
+  </script>
+</body>
+</html>
