@@ -1,219 +1,456 @@
-# Huddle — Real-Time Video Conferencing & Collaboration
+# HUDDLE — Real-Time Video Conferencing & Collaboration
 
-> **Task 4: Real-Time Communication App (College Project)**  
-> Built with Node.js, Express, Socket.io, SQLite (better-sqlite3), and pure vanilla JavaScript ES modules.
+<p align="center">
+  <strong>A real-time video conferencing and collaboration platform built with WebRTC, Socket.io, and Node.js.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-Task%204-6366f1?style=for-the-badge" alt="Task 4"/>
+  <img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/Express-5-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express"/>
+  <img src="https://img.shields.io/badge/WebRTC-Peer--to--Peer-333333?style=for-the-badge" alt="WebRTC"/>
+  <img src="https://img.shields.io/badge/Socket.io-4-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.io"/>
+</p>
 
 ---
 
-## Highlights
+## Overview
 
-- **Direct WebRTC Mesh**: Peer-to-peer audio and video mesh supporting 2 to 6+ participants with dynamic adaptive grid reflow.
-- **DTLS-SRTP Media Encryption**: All audio, video, and data channels are encrypted end-to-end between peers by default using DTLS-SRTP (RFC 5763 / RFC 5764).
-- **End-to-End Encrypted (E2EE) In-Call Chat**: Chat messages are encrypted in the browser using the Web Crypto API (**AES-256-GCM**). Symmetrically derived from room passcodes (PBKDF2) or ephemeral keys stored in URL fragments (`#key=...`) that never reach the server.
-- **Peer-to-Peer & Encrypted Server File Sharing**: Send files directly over `RTCDataChannel` in 64KB chunks with live progress bars, SHA-256 integrity verification, and cancel controls. Also supports server-side uploads encrypted at rest with AES-256-GCM.
-- **Collaborative Whiteboard**: Full-stage shared real-time canvas with 8 drawing tools (pen, highlighter, eraser, line, rectangle, ellipse, arrow, text), color palette, stroke thicknesses, undo/redo, pan/zoom, PNG export, throttled Socket.io batching, and late-join state sync.
-- **Clean, Restrained UI**: Minimalist aesthetic (inspired by Linear, Whereby, and Google Meet). Neutral dark call screen, light dashboard, 1.5px SVG icons, zero gradients, and zero AI template fluff.
-- **Host Controls & Admin Panel**: Remote muting, participant removal, room locking, and global room termination. Dedicated protected `/admin` panel for the first registered user.
+**Huddle** is a real-time video conferencing and collaboration application designed to bring meetings, communication, and teamwork into one platform.
+
+Built using Node.js, Express, Socket.io, WebRTC, and SQLite, it provides peer-to-peer audio/video communication, encrypted in-call messaging, file sharing, and a collaborative whiteboard.
+
+The application combines real-time communication with privacy-focused security mechanisms and a clean, minimalist interface.
+
+**Project:** Task 4 — Real-Time Communication App  
+**Category:** College Project  
+**Architecture:** Client-server signaling with peer-to-peer WebRTC media  
+**Frontend:** Vanilla JavaScript ES Modules
+
+---
+
+## Key Features
+
+### 1. Real-Time Video Conferencing
+- Peer-to-peer WebRTC mesh architecture.
+- Supports multiple participants with dynamic video grid layouts.
+- Real-time audio and video communication.
+- Camera and microphone controls.
+- Audio-level visualization using Web Audio API.
+- Screen sharing support.
+
+### 2. Security & Encryption
+- DTLS-SRTP encryption for WebRTC media transport.
+- End-to-end encrypted in-call chat using AES-256-GCM.
+- PBKDF2-based key derivation from room passcodes.
+- Optional ephemeral encryption keys stored in URL fragments.
+- Server-side file encryption at rest using AES-256-GCM.
+- JWT authentication using HTTP-only cookies.
+- CSRF protection, Helmet security headers, and rate limiting.
+
+### 3. File Sharing
+- Direct peer-to-peer file transfers through RTCDataChannel.
+- Chunk-based transfer using 64 KB chunks.
+- Live upload and download progress.
+- SHA-256 file integrity verification.
+- Transfer cancellation controls.
+- Encrypted server-side file storage.
+
+### 4. Collaborative Whiteboard
+- Shared real-time drawing canvas.
+- Eight drawing tools:
+  - Pen
+  - Highlighter
+  - Eraser
+  - Line
+  - Rectangle
+  - Ellipse
+  - Arrow
+  - Text
+- Color palette and adjustable stroke thickness.
+- Undo and redo functionality.
+- Canvas pan and zoom.
+- PNG export.
+- Real-time synchronization using Socket.io.
+- Late-joiner whiteboard state synchronization.
+
+### 5. Meeting & Host Controls
+- Create and join meeting rooms.
+- Remote participant muting.
+- Participant removal.
+- Room locking.
+- Meeting termination.
+- Meeting history and room management.
+
+### 6. Admin Dashboard
+- Protected administrative panel at `/admin`.
+- First registered user receives admin privileges.
+- Room overview and management.
+- Global room termination controls.
+
+### 7. User Interface
+- Minimalist interface inspired by modern collaboration applications.
+- Light-themed dashboard.
+- Neutral dark meeting interface.
+- Responsive video grid.
+- SVG-based icons.
+- CSS variables for consistent design tokens.
+- No frontend frameworks or animation libraries.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-| :--- | :--- |
-| **Backend** | Node.js, Express 5, Socket.io 4 |
-| **Database** | SQLite via `better-sqlite3` (WAL mode enabled) |
-| **Security** | `bcryptjs`, JWT cookies (`httpOnly`, `SameSite=Strict`), `helmet`, `express-rate-limit`, CSRF protection |
-| **Media** | WebRTC PeerConnection (Mesh), Web Audio API (`AnalyserNode`) |
-| **Encryption** | Web Crypto API (AES-256-GCM E2EE chat), Node crypto (AES-256-GCM files at rest) |
-| **Frontend** | Vanilla JavaScript (ES modules), Semantic HTML5, CSS Variables (no frameworks) |
-| **Testing** | Playwright multi-client end-to-end test suite |
-
----
-
-## Quickstart
-
-### 1. Prerequisites
-- Node.js (v18+) and npm
-
-### 2. Install & Start
-```bash
-# Clone or navigate to the project directory
-cd huddle
-
-# Install dependencies
-npm install
-
-# (Optional) Seed demo accounts
-npm run seed
-
-# Start development server (HTTP on localhost:3000)
-npm start
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Default Demo Credentials
-| Role | Email Address | Password | Permissions |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@huddle.local` | `password123` | Full access + Protected `/admin` console |
-| **Member** | `user@huddle.local` | `password123` | Host / Join meetings, Whiteboard, Files |
-| **New User** | Any valid email | Minimum 8 chars | Click **Create Account** on the landing page |
-
----
-
-## Testing on Two Real Devices on the Same Wi-Fi (LAN)
-
-Browsers enforce that WebRTC camera and microphone access (`navigator.mediaDevices.getUserMedia`) requires a **Secure Context** (`https://` or `localhost`). When opening the app from a phone or second laptop over a local IP (e.g., `https://192.168.1.5:3000`), HTTPS is mandatory.
-
-### 1. Generate Local Self-Signed Certificates
-Huddle includes an automated certificate generator that inspects your machine's network interfaces and binds all local LAN IPs to Subject Alternative Names (SANs):
-
-```bash
-npm run cert
-```
-This generates `certs/key.pem` and `certs/cert.pem`.
-
-### 2. Start the Server over HTTPS
-```bash
-npm run start:https
-```
-The terminal will display the active addresses:
-```
-  🚀 Huddle real-time conferencing server online
-  Protocol: HTTPS
-  Local:    https://localhost:3000
-  Network:  https://192.168.1.45:3000
-```
-
-### 3. Connect from Mobile / Second Device
-1. Connect both devices to the same Wi-Fi network.
-2. On your mobile phone browser (Chrome/Safari), open `https://<YOUR-LAN-IP>:3000`.
-3. Because the certificate is self-signed for local development, accept the browser warning (**Advanced -> Proceed to site**).
-4. Create an account, join the meeting room, and grant camera/mic permissions. Both devices will establish a direct peer-to-peer mesh call!
-
----
-
-## Production TURN Server Setup (coturn)
-
-Public STUN (`stun:stun.l.google.com:19302`) is enabled by default and connects peers over most residential and office networks. In strict symmetric NAT or cellular firewall environments, a TURN relay server is required.
-
-### Setting up `coturn` on Ubuntu/Debian:
-```bash
-# Install coturn
-sudo apt update && sudo apt install -y coturn
-
-# Edit configuration (/etc/turnserver.conf)
-sudo nano /etc/turnserver.conf
-```
-
-Add the following configuration:
-```ini
-listening-port=3478
-tls-listening-port=5349
-realm=huddle.yourdomain.com
-fingerprint
-lt-cred-mech
-user=huddleuser:StrongSecretPassword123
-cert=/etc/letsencrypt/live/huddle.yourdomain.com/cert.pem
-pkey=/etc/letsencrypt/live/huddle.yourdomain.com/privkey.pem
-```
-
-Start the service:
-```bash
-sudo systemctl enable turnserver
-sudo systemctl restart turnserver
-```
-
-Configure in Huddle's `.env`:
-```env
-TURN_URLS=turn:yourdomain.com:3478
-TURN_USERNAME=huddleuser
-TURN_CREDENTIAL=StrongSecretPassword123
-```
+| Layer | Technologies |
+|---|---|
+| Runtime | Node.js 18+ |
+| Backend | Express 5 |
+| Real-Time Communication | Socket.io 4 |
+| Database | SQLite, better-sqlite3 |
+| Database Optimization | SQLite WAL Mode |
+| Authentication | bcryptjs, JWT Cookies |
+| Security | Helmet, CSRF Protection, express-rate-limit |
+| Video & Audio | WebRTC, RTCPeerConnection |
+| Audio Processing | Web Audio API, AnalyserNode |
+| Encryption | Web Crypto API, AES-256-GCM |
+| File Integrity | SHA-256 |
+| Frontend | HTML5, CSS3, Vanilla JavaScript ES Modules |
+| Testing | Playwright |
 
 ---
 
 ## System Architecture
 
+Huddle uses a client-server architecture for authentication, room management, and signaling, while WebRTC handles peer-to-peer media communication.
+
+```mermaid
+flowchart TB
+    A[Client 1] <-->|Socket.io Signaling| S[Node.js / Express Server]
+    B[Client 2] <-->|Socket.io Signaling| S
+    C[Client 3] <-->|Socket.io Signaling| S
+
+    A <-->|WebRTC Peer Connection| B
+    B <-->|WebRTC Peer Connection| C
+    A <-->|WebRTC Peer Connection| C
+
+    S --> DB[(SQLite Database)]
+    S --> F[Encrypted File Storage]
+
+    A <-->|Whiteboard Events| S
+    B <-->|Whiteboard Events| S
+    C <-->|Whiteboard Events| S
 ```
+
+### Architecture Components
+
+| Component | Responsibility |
+|---|---|
+| Express Server | HTTP routes, authentication, and application logic |
+| Socket.io | Real-time signaling and collaboration events |
+| WebRTC | Peer-to-peer audio, video, and data communication |
+| SQLite | Users, rooms, files, and application records |
+| Web Crypto API | Browser-side chat encryption |
+| Node Crypto | Server-side file encryption |
+| Playwright | Multi-client end-to-end testing |
+
+---
+
+## Project Structure
+
+```text
 huddle/
+│
 ├── server/
-│   ├── app.js                 # Express application & route configuration
-│   ├── server.js              # HTTP/HTTPS listener & Socket.io initialization
-│   ├── config.js              # Environment settings & defaults
+│   ├── app.js
+│   ├── server.js
+│   ├── config.js
+│   │
 │   ├── db/
-│   │   ├── database.js        # SQLite database connection (better-sqlite3)
-│   │   └── schema.sql         # Database schema (users, rooms, files, logs)
+│   │   ├── database.js
+│   │   └── schema.sql
+│   │
 │   ├── middleware/
-│   │   ├── auth.js            # JWT verification & socket handshake auth
-│   │   ├── security.js        # Helmet CSP & CSRF protection
-│   │   └── rateLimiter.js     # Rate limiters for auth and room actions
+│   │   ├── auth.js
+│   │   ├── security.js
+│   │   └── rateLimiter.js
+│   │
 │   ├── routes/
-│   │   ├── auth.js            # Sign up, sign in, sign out, me
-│   │   ├── rooms.js           # Meeting creation, history, passcode check
-│   │   ├── files.js           # Server file upload & AES-256 decryption
-│   │   └── admin.js           # Admin overview & room termination
+│   │   ├── auth.js
+│   │   ├── rooms.js
+│   │   ├── files.js
+│   │   └── admin.js
+│   │
 │   ├── sockets/
-│   │   ├── index.js           # Socket event mounting
-│   │   └── signaling.js       # Mesh peer signaling & room coordinator
+│   │   ├── index.js
+│   │   └── signaling.js
+│   │
 │   └── crypto/
-│       └── serverCrypto.js    # AES-256-GCM file encryption at rest
+│       └── serverCrypto.js
+│
 ├── public/
-│   ├── index.html             # Split-screen landing & auth
-│   ├── dashboard.html         # Meeting hub & history
-│   ├── lobby.html             # Camera/mic preview & device selector
-│   ├── room.html              # Real-time call screen
-│   ├── admin.html             # Protected administrative console
+│   ├── index.html
+│   ├── dashboard.html
+│   ├── lobby.html
+│   ├── room.html
+│   ├── admin.html
+│   │
 │   ├── css/
-│   │   ├── variables.css      # Design tokens & color system
-│   │   ├── main.css           # Global typography & layout
-│   │   ├── room.css           # Dark theme video grid & docks
-│   │   └── whiteboard.css     # Canvas tools & palette
+│   │   ├── variables.css
+│   │   ├── main.css
+│   │   ├── room.css
+│   │   └── whiteboard.css
+│   │
 │   └── js/
-│       ├── api.js             # Fetch wrapper with CSRF injection
-│       ├── crypto.js          # Web Crypto AES-256-GCM E2EE chat
-│       ├── signaling.js       # Socket.io client wrapper
-│       ├── rtc.js             # WebRTC mesh & audio level analyser
-│       ├── files.js           # Chunked P2P DataChannel file transfers
-│       └── whiteboard.js      # Collaborative canvas with stroke batching
+│       ├── api.js
+│       ├── crypto.js
+│       ├── signaling.js
+│       ├── rtc.js
+│       ├── files.js
+│       └── whiteboard.js
+│
 ├── tests/
-│   ├── test-milestone1.js     # Auth & security integration tests
+│   ├── test-milestone1.js
 │   └── e2e/
-│       └── huddle.spec.js     # 3-client automated Playwright test suite
+│       └── huddle.spec.js
+│
 ├── scripts/
-│   ├── generate-cert.js       # Automated self-signed TLS cert generator
-│   └── start-https.js         # Cross-platform HTTPS entrypoint
-├── UI_CHECKLIST.md            # Interactive UI element verification matrix
-├── SECURITY.md                # Comprehensive threat model & crypto specs
+│   ├── generate-cert.js
+│   └── start-https.js
+│
+├── UI_CHECKLIST.md
+├── SECURITY.md
 └── package.json
 ```
 
 ---
 
-## Keyboard Shortcuts in Call
+## Getting Started
 
-| Key | Action |
-| :--- | :--- |
-| `M` | Toggle Microphone (Mute / Unmute) |
-| `V` | Toggle Camera (Video On / Off) |
-| `S` | Start / Stop Screen Sharing |
-| `W` | Open / Close Collaborative Whiteboard |
+### Prerequisites
+
+Make sure you have installed:
+
+- Node.js 18 or later
+- npm
+- A modern browser with WebRTC support
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/abhishek-s-gupta/huddle.git
+cd huddle
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Seed Demo Accounts (Optional)
+
+```bash
+npm run seed
+```
+
+### 4. Start the Application
+
+```bash
+npm start
+```
+
+Open the application:
+
+```text
+http://localhost:3000
+```
+
+> Camera and microphone access generally requires HTTPS or localhost. For testing across devices on a local network, use the HTTPS setup below.
 
 ---
 
-## Running Automated E2E Tests
+## Demo Credentials
 
-The automated test suite runs via Playwright, launching Chromium with fake media streams (`--use-fake-device-for-media-stream`), opening 3 concurrent browser sessions, and verifying:
-1. User registration, login, and first-user admin promotion.
-2. Meeting creation, lobby preview, and multi-user mesh video tile connection.
-3. Media mute propagation across all clients.
-4. Screen sharing broadcast.
-5. End-to-end encrypted chat message round trip.
-6. P2P & server encrypted file transfers with SHA-256 hash validation.
-7. Real-time whiteboard synchronization and late-joiner state playback.
-8. Host controls (room locking, remote muting, ending meeting).
+After running the demo seeder:
 
-To run:
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@huddle.local | password123 |
+| Member | user@huddle.local | password123 |
+
+New users can also register using the account creation option.
+
+---
+
+## Testing Across Devices (LAN)
+
+To test video conferencing between two devices connected to the same Wi-Fi network, Huddle provides an automated local HTTPS certificate generator.
+
+### Step 1 — Generate Certificates
+
+```bash
+npm run cert
+```
+
+This generates:
+
+```text
+certs/
+├── key.pem
+└── cert.pem
+```
+
+### Step 2 — Start HTTPS Server
+
+```bash
+npm run start:https
+```
+
+### Step 3 — Connect Devices
+
+1. Connect both devices to the same Wi-Fi network.
+2. Start the HTTPS server.
+3. Open the displayed LAN address on the second device.
+4. Accept the local self-signed certificate warning if appropriate for your development environment.
+5. Sign in and join the same meeting room.
+6. Grant camera and microphone permissions.
+
+Both devices can now establish a WebRTC peer connection.
+
+---
+
+## TURN Server Configuration
+
+Huddle uses a public STUN server by default to assist with peer connectivity.
+
+For networks where direct peer-to-peer connectivity is unavailable, a TURN relay server may be required.
+
+The application supports configuring TURN credentials through environment variables.
+
+```env
+TURN_URLS=turn:yourdomain.com:3478
+TURN_USERNAME=your-turn-username
+TURN_CREDENTIAL=your-turn-password
+```
+
+A production deployment should use properly secured TURN credentials and valid TLS certificates where applicable.
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|---|---|
+| `M` | Toggle microphone |
+| `V` | Toggle camera |
+| `S` | Start or stop screen sharing |
+| `W` | Open or close whiteboard |
+
+---
+
+## Automated Testing
+
+Huddle includes a Playwright-based end-to-end testing suite.
+
+The tests launch multiple Chromium browser sessions with simulated media devices to verify core meeting functionality.
+
+### Test Coverage
+
+1. User registration and authentication.
+2. First-user administrator promotion.
+3. Meeting creation and joining.
+4. Lobby camera and microphone preview.
+5. Multi-client WebRTC connection.
+6. Microphone mute propagation.
+7. Screen-sharing broadcast.
+8. Encrypted chat message exchange.
+9. Peer-to-peer file transfer.
+10. Server-side encrypted file handling.
+11. SHA-256 file integrity verification.
+12. Real-time whiteboard synchronization.
+13. Late-joiner whiteboard state synchronization.
+14. Room locking and remote muting.
+15. Meeting termination.
+
+### Run Tests
+
 ```bash
 npm test
 ```
+
+---
+
+## Security Considerations
+
+Security is integrated into the application's communication and backend layers.
+
+- HTTP-only JWT cookies for authentication.
+- SameSite cookie restrictions.
+- CSRF protection.
+- Helmet security headers.
+- Rate limiting for sensitive endpoints.
+- bcryptjs password hashing.
+- DTLS-SRTP-protected WebRTC media transport.
+- AES-256-GCM encrypted chat messages.
+- AES-256-GCM encrypted server-side file storage.
+- SHA-256 integrity verification for file transfers.
+- Protected administrative routes.
+
+For implementation details and the project's threat model, see [`SECURITY.md`](SECURITY.md).
+
+**Important:** WebRTC's DTLS-SRTP protects media transport between peers. The in-call chat uses a separate application-level encryption mechanism. These are distinct security layers and should not be described as one unified end-to-end encryption system.
+
+---
+
+## Design Philosophy
+
+Huddle follows a restrained visual design approach focused on usability and clarity.
+
+- Minimalist layouts.
+- Neutral color palette.
+- Consistent spacing and typography.
+- Clear meeting controls.
+- Responsive participant grid.
+- Lightweight frontend without framework dependencies.
+- No unnecessary gradients or decorative UI elements.
+
+The goal is to keep the interface focused on communication rather than visual complexity.
+
+---
+
+## Future Improvements
+
+Potential improvements for future versions include:
+
+- SFU-based media architecture for larger meetings.
+- Redis-backed Socket.io scaling.
+- Persistent distributed session management.
+- Improved TURN credential management.
+- Production deployment and monitoring.
+- Expanded browser compatibility testing.
+- More comprehensive automated security testing.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+See the [`LICENSE`](LICENSE) file for details.
+
+---
+
+## Author
+
+**Abhishek Gupta**
+
+- GitHub: [abhishek-s-gupta](https://github.com/abhishek-s-gupta)
+- LinkedIn: [Abhishek Gupta](https://www.linkedin.com/in/abhishek-s-gupta)
+
+---
+
+<p align="center">
+  <strong>HUDDLE — Connect. Collaborate. Communicate.</strong>
+  <br/>
+  Built with Node.js, WebRTC, Socket.io, and Vanilla JavaScript.
+</p>
