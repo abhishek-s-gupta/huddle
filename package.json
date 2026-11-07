@@ -7,6 +7,7 @@
     "start": "node server/server.js",
     "start:https": "node scripts/start-https.js",
     "cert": "node scripts/generate-cert.js",
+    "seed": "node scripts/seed.js",
     "test": "node tests/e2e/run-e2e.js",
     "test:spec": "npx playwright test"
   },

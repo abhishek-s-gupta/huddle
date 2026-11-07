@@ -44,10 +44,20 @@ cd huddle
 # Install dependencies
 npm install
 
+# (Optional) Seed demo accounts
+npm run seed
+
 # Start development server (HTTP on localhost:3000)
 npm start
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Default Demo Credentials
+| Role | Email Address | Password | Permissions |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@huddle.local` | `password123` | Full access + Protected `/admin` console |
+| **Member** | `user@huddle.local` | `password123` | Host / Join meetings, Whiteboard, Files |
+| **New User** | Any valid email | Minimum 8 chars | Click **Create Account** on the landing page |
 
 ---
 
