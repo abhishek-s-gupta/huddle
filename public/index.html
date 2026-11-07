@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huddle — Real-Time Video & Collaboration</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <div class="split-container">
+    <!-- Left Hero Statement -->
+    <div class="split-hero">
+      <div class="brand-mark">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z" />
+          <rect x="3" y="6" width="12" height="12" rx="2" />
+        </svg>
+        <span>Huddle</span>
+      </div>
+
+      <div class="hero-statement">
+        <h1>Reliable meetings. Direct collaboration.</h1>
+        <p>A minimalist real-time conferencing platform built for focused teams. Peer-to-peer audio, video, end-to-end encrypted chat, interactive whiteboard, and secure file transfer.</p>
+      </div>
+
+      <div class="hero-footer text-meta">
+        <span>Task 4: Real-Time Communication App</span>
+      </div>
+    </div>
+
+    <!-- Right Auth Form -->
+    <div class="split-auth">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2 id="auth-title">Sign in to Huddle</h2>
+          <p class="text-meta" id="auth-subtitle">Enter your credentials to continue to your dashboard.</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist">
+          <button id="tab-login" class="auth-tab active" role="tab" aria-selected="true">Sign In</button>
+          <button id="tab-signup" class="auth-tab" role="tab" aria-selected="false">Create Account</button>
+        </div>
+
+        <form id="auth-form" novalidate>
+          <div class="form-group" id="group-name" style="display: none;">
+            <label for="input-name">Full Name</label>
+            <input type="text" id="input-name" placeholder="Alex Morgan" autocomplete="name">
+            <div class="error-message" id="error-name" style="display: none;"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-email">Email Address</label>
+            <input type="email" id="input-email" placeholder="alex@university.edu" autocomplete="email" required>
+            <div class="error-message" id="error-email" style="display: none;"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-password">Password</label>
+            <input type="password" id="input-password" placeholder="••••••••" autocomplete="current-password" required>
+            <div class="error-message" id="error-password" style="display: none;"></div>
+          </div>
+
+          <div class="form-group" id="form-general-error" style="display: none;">
+            <div class="error-message" id="error-general"></div>
+          </div>
+
+          <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+            <span id="btn-text">Sign In</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+
+  <script type="module">
+    import { api } from '/js/api.js';
+
+    let isSignUp = false;
+
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const groupName = document.getElementById('group-name');
+    const inputName = document.getElementById('input-name');
+    const inputEmail = document.getElementById('input-email');
+    const inputPassword = document.getElementById('input-password');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnText = document.getElementById('btn-text');
+    const form = document.getElementById('auth-form');
+
+    const errorName = document.getElementById('error-name');
+    const errorEmail = document.getElementById('error-email');
+    const errorPassword = document.getElementById('error-password');
+    const errorGeneral = document.getElementById('error-general');
+    const formGeneralError = document.getElementById('form-general-error');
+
+    function clearErrors() {
+      [errorName, errorEmail, errorPassword, errorGeneral].forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+      });
+      [inputName, inputEmail, inputPassword].forEach(el => el.classList.remove('input-error'));
+      formGeneralError.style.display = 'none';
+    }
+
+    function switchMode(signup) {
+      isSignUp = signup;
+      clearErrors();
+      if (signup) {
+        tabLogin.classList.remove('active');
+        tabLogin.setAttribute('aria-selected', 'false');
+        tabSignup.classList.add('active');
+        tabSignup.setAttribute('aria-selected', 'true');
+        authTitle.textContent = 'Create an account';
+        authSubtitle.textContent = 'Start hosting and joining real-time meetings.';
+        groupName.style.display = 'flex';
+        btnText.textContent = 'Create Account';
+      } else {
+        tabSignup.classList.remove('active');
+        tabSignup.setAttribute('aria-selected', 'false');
+        tabLogin.classList.add('active');
+        tabLogin.setAttribute('aria-selected', 'true');
+        authTitle.textContent = 'Sign in to Huddle';
+        authSubtitle.textContent = 'Enter your credentials to continue to your dashboard.';
+        groupName.style.display = 'none';
+        btnText.textContent = 'Sign In';
+      }
+    }
+
+    tabLogin.addEventListener('click', () => switchMode(false));
+    tabSignup.addEventListener('click', () => switchMode(true));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const email = inputEmail.value.trim();
+      const password = inputPassword.value;
+      const displayName = inputName.value.trim();
+
+      let hasError = false;
+
+      if (!email || !email.includes('@')) {
+        errorEmail.textContent = 'Please enter a valid email address.';
+        errorEmail.style.display = 'block';
+        inputEmail.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (!password || password.length < 8) {
+        errorPassword.textContent = 'Password must be at least 8 characters.';
+        errorPassword.style.display = 'block';
+        inputPassword.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (isSignUp && (!displayName || displayName.length < 2)) {
+        errorName.textContent = 'Display name must be at least 2 characters.';
+        errorName.style.display = 'block';
+        inputName.classList.add('input-error');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      btnSubmit.disabled = true;
+      btnText.textContent = isSignUp ? 'Creating account...' : 'Signing in...';
+
+      try {
+        if (isSignUp) {
+          await api.signup(email, password, displayName);
+        } else {
+          await api.login(email, password);
+        }
+
+        // Check for redirect query param
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || '/dashboard';
+        window.location.href = redirect;
+      } catch (err) {
+        btnSubmit.disabled = false;
+        btnText.textContent = isSignUp ? 'Create Account' : 'Sign In';
+        errorGeneral.textContent = err.message || 'An unexpected error occurred.';
+        formGeneralError.style.display = 'block';
+      }
+    });
+
+    // Check if user is already authenticated
+    api.getMe().then(res => {
+      if (res && res.user) {
+        window.location.href = '/dashboard';
+      }
+    }).catch(() => {});
+  </script>
+</body>
+</html>

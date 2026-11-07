@@ -1,0 +1,11 @@
+node_modules/
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+data/uploads/*
+!data/uploads/.gitkeep
+certs/*.pem
+.env
+tests-results/
+playwright-report/
