@@ -22,6 +22,18 @@ let isHandRaised = false;
 let pinnedSocketId = null;
 let currentScreenSharer = null;
 
+function getAvatarColor(name) {
+  const colors = [
+    '#2563EB', '#7C3AED', '#DB2777', '#EA580C',
+    '#059669', '#0891B2', '#4F46E5', '#D97706'
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
 let participants = new Map(); // socketId -> participantData
 let unreadChatCount = 0;
 let fileUploadMode = 'p2p'; // 'p2p' or 'server'
@@ -406,14 +418,15 @@ function addVideoTile(participant) {
   tile.id = `tile-${participant.socketId}`;
 
   const initials = participant.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const avatarBg = getAvatarColor(participant.displayName);
 
   tile.innerHTML = `
     <video autoplay playsinline></video>
-    <div class="tile-avatar" style="display: none;">${initials}</div>
+    <div class="tile-avatar" style="background-color: ${avatarBg}; display: none;">${initials}</div>
     <div class="tile-meta-bar">
       <span class="tile-name-tag">
         <span class="tile-user-name">${escapeHtml(participant.displayName)}</span>
-        ${participant.isHost ? '<span style="font-size: 10px; color: #3B82F6;">(Host)</span>' : ''}
+        ${participant.isHost ? '<span class="badge badge-host" style="font-size: 10px; padding: 1px 6px;">Host</span>' : ''}
         <svg class="tile-mic-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
           <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -430,7 +443,7 @@ function addVideoTile(participant) {
             <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
           </svg>
         </span>
-        <button class="tile-icon-btn btn-pin-participant" title="Pin to stage">
+        <button class="tile-icon-btn btn-pin-participant" title="Pin to stage" aria-label="Pin participant">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="17" x2="12" y2="22"></line>
             <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path>
@@ -473,6 +486,7 @@ function updateLocalMediaUI() {
   const avatarLocal = document.getElementById('avatar-local');
   const initials = currentUser?.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '--';
   avatarLocal.textContent = initials;
+  avatarLocal.style.backgroundColor = getAvatarColor(currentUser?.displayName || '');
 
   if (isVideoMuted) {
     videoLocal.style.display = 'none';
@@ -716,25 +730,16 @@ formChat.addEventListener('submit', async (e) => {
 
 function appendChatMessage({ senderName, isSelf, text, timestamp }) {
   const msgEl = document.createElement('div');
-  msgEl.style.display = 'flex';
-  msgEl.style.flexDirection = 'column';
-  msgEl.style.alignItems = isSelf ? 'flex-end' : 'flex-start';
+  msgEl.className = `chat-msg-row ${isSelf ? 'is-self' : 'is-peer'}`;
 
   const timeStr = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   msgEl.innerHTML = `
-    <div style="font-size: 11px; color: #71717A; margin-bottom: 2px;">
-      ${escapeHtml(senderName)} • ${timeStr}
+    <div class="chat-msg-header">
+      <span style="font-weight: 500; color: #A1A1AA;">${escapeHtml(senderName)}</span>
+      <span>${timeStr}</span>
     </div>
-    <div style="
-      background-color: ${isSelf ? 'var(--accent)' : '#27272A'};
-      color: #FFFFFF;
-      padding: 8px 12px;
-      border-radius: var(--radius-md);
-      font-size: var(--font-size-body);
-      max-width: 85%;
-      word-break: break-word;
-    ">
+    <div class="chat-bubble ${isSelf ? 'is-self' : 'is-peer'}">
       ${escapeHtml(text)}
     </div>
   `;
@@ -753,10 +758,7 @@ function appendChatMessage({ senderName, isSelf, text, timestamp }) {
 function appendSystemMessage(text, timestamp) {
   const sysEl = document.createElement('div');
   sysEl.style.textAlign = 'center';
-  sysEl.style.fontSize = '12px';
-  sysEl.style.color = '#71717A';
-  sysEl.style.padding = '4px 0';
-  sysEl.textContent = text;
+  sysEl.innerHTML = `<span class="system-msg-pill">${escapeHtml(text)}</span>`;
   chatMessagesContainer.appendChild(sysEl);
   chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
 }
@@ -858,27 +860,36 @@ async function loadServerFiles() {
 
 function appendFileItem(file, prepend = false) {
   const item = document.createElement('div');
-  item.style.backgroundColor = '#1E1E22';
+  item.style.backgroundColor = '#18181B';
   item.style.border = '1px solid #27272A';
-  item.style.borderRadius = 'var(--radius-md)';
-  item.style.padding = '10px 12px';
+  item.style.borderRadius = 'var(--radius-lg)';
+  item.style.padding = '10px 14px';
   item.style.display = 'flex';
   item.style.alignItems = 'center';
   item.style.justifyContent = 'space-between';
+  item.style.boxShadow = 'var(--shadow-xs)';
 
   const sizeFormatted = (file.sizeBytes / (1024 * 1024)).toFixed(2) + ' MB';
   const downloadLink = file.downloadUrl || `/api/files/${file.id}/download`;
 
   item.innerHTML = `
-    <div style="overflow: hidden; margin-right: 12px;">
-      <div style="font-size: var(--font-size-meta); font-weight: 500; color: #F4F4F5; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-        ${escapeHtml(file.originalName)}
+    <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; margin-right: 12px;">
+      <div style="width: 32px; height: 32px; border-radius: var(--radius-md); background-color: #27272A; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
       </div>
-      <div style="font-size: 11px; color: #71717A;">
-        ${sizeFormatted} • ${file.isP2P ? 'Direct P2P' : 'AES-256 Encrypted'}
+      <div style="overflow: hidden;">
+        <div style="font-size: var(--font-size-sm); font-weight: 500; color: #FAFAFA; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+          ${escapeHtml(file.originalName)}
+        </div>
+        <div style="font-size: 11px; color: #71717A;">
+          ${sizeFormatted} • ${file.isP2P ? 'Direct P2P' : 'AES-256 Encrypted'}
+        </div>
       </div>
     </div>
-    <a href="${downloadLink}" download="${escapeHtml(file.originalName)}" class="btn btn-secondary" style="padding: 4px 10px; font-size: var(--font-size-xs); background-color: #27272A; border-color: #3F3F46; color: #FFFFFF; flex-shrink: 0;">
+    <a href="${downloadLink}" download="${escapeHtml(file.originalName)}" class="btn btn-secondary btn-sm" style="background-color: #27272A; border-color: #3F3F46; color: #FAFAFA; flex-shrink: 0;">
       Download
     </a>
   `;
@@ -917,26 +928,34 @@ function createParticipantRow(p) {
   row.style.display = 'flex';
   row.style.alignItems = 'center';
   row.style.justifyContent = 'space-between';
-  row.style.padding = '8px 10px';
-  row.style.backgroundColor = '#1E1E22';
-  row.style.borderRadius = 'var(--radius-md)';
+  row.style.padding = '8px 12px';
+  row.style.backgroundColor = '#18181B';
+  row.style.borderRadius = 'var(--radius-lg)';
   row.style.border = '1px solid #27272A';
 
+  const initials = p.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const color = getAvatarColor(p.displayName);
+
   row.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: var(--font-size-meta); font-weight: 500; color: #F4F4F5;">${escapeHtml(p.displayName)}</span>
-      ${p.isHost ? '<span style="font-size: 10px; color: #3B82F6;">(Host)</span>' : ''}
-      ${p.isHandRaised ? '<span title="Hand Raised" style="font-size: 12px;">✋</span>' : ''}
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 28px; height: 28px; border-radius: 50%; background-color: ${color}; color: #FFFFFF; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        ${initials}
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: var(--font-size-sm); font-weight: 500; color: #FAFAFA;">${escapeHtml(p.displayName)}</span>
+        ${p.isHost ? '<span class="badge badge-host" style="font-size: 10px; padding: 1px 6px;">Host</span>' : ''}
+        ${p.isHandRaised ? '<span title="Hand Raised" style="color: #F59E0B; display: inline-flex;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg></span>' : ''}
+      </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 6px;">
-      <span title="${p.mediaState.audio ? 'Mic unmuted' : 'Mic muted'}" style="color: ${p.mediaState.audio ? '#16A34A' : '#EF4444'};">
+      <span title="${p.mediaState.audio ? 'Mic unmuted' : 'Mic muted'}" style="color: ${p.mediaState.audio ? '#16A34A' : '#EF4444'}; display: inline-flex;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
       </span>
 
       ${(isHost || currentUser?.isAdmin) && !p.isSelf ? `
-        <button class="btn btn-secondary btn-mute-user" data-socket="${p.socketId}" style="padding: 2px 6px; font-size: 11px; background-color: #27272A; border-color: #3F3F46; color: #F4F4F5;">Mute</button>
-        <button class="btn btn-danger btn-kick-user" data-socket="${p.socketId}" style="padding: 2px 6px; font-size: 11px;">Kick</button>
+        <button class="btn btn-secondary btn-sm btn-mute-user" data-socket="${p.socketId}" style="padding: 2px 8px; font-size: 11px; background-color: #27272A; border-color: #3F3F46; color: #FAFAFA;">Mute</button>
+        <button class="btn btn-danger btn-sm btn-kick-user" data-socket="${p.socketId}" style="padding: 2px 8px; font-size: 11px;">Kick</button>
       ` : ''}
     </div>
   `;

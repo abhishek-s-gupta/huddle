@@ -2,6 +2,18 @@ import { api } from '/js/api.js';
 
 let currentUser = null;
 
+function getAvatarColor(name) {
+  const colors = [
+    '#2563EB', '#7C3AED', '#DB2777', '#EA580C',
+    '#059669', '#0891B2', '#4F46E5', '#D97706'
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
 // Theme Management
 const themeBtn = document.getElementById('btn-theme-toggle');
 const savedTheme = localStorage.getItem('huddle_theme') || 'light';
@@ -29,7 +41,9 @@ async function loadUser() {
     currentUser = res.user;
     document.getElementById('user-display-name').textContent = currentUser.displayName;
     const initials = currentUser.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    document.getElementById('user-initials').textContent = initials;
+    const initialsEl = document.getElementById('user-initials');
+    initialsEl.textContent = initials;
+    initialsEl.style.backgroundColor = getAvatarColor(currentUser.displayName);
     document.getElementById('greeting-title').textContent = `Welcome back, ${currentUser.displayName.split(' ')[0]}`;
 
     if (currentUser.isAdmin) {
@@ -53,7 +67,7 @@ async function loadHistory() {
     tbody.innerHTML = '';
 
     if (list.length === 0) {
-      empty.style.display = 'block';
+      empty.style.display = 'flex';
       return;
     }
 
@@ -68,19 +82,31 @@ async function loadHistory() {
         minute: '2-digit'
       });
 
-      const durationText = item.durationMinutes ? `${item.durationMinutes} min` : (item.isEnded ? '< 1 min' : 'In Progress');
+      const statusBadge = !item.isEnded
+        ? '<span class="badge badge-active">In Progress</span>'
+        : '<span class="badge badge-ended">Ended</span>';
 
       tr.innerHTML = `
         <td>
-          <div style="font-weight: 500;">${escapeHtml(item.title)}</div>
-          <div class="text-meta" style="font-family: monospace;">${escapeHtml(item.code)}</div>
+          <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">${escapeHtml(item.title)}</div>
+          <div class="text-meta text-mono" style="font-size: 11px; color: var(--text-muted);">${escapeHtml(item.code)}</div>
         </td>
-        <td>${escapeHtml(item.hostName)} ${item.isHost ? '<span class="text-meta">(You)</span>' : ''}</td>
+        <td>
+          <div style="font-weight: 500;">
+            ${escapeHtml(item.hostName)}
+            ${item.isHost ? '<span class="badge badge-host" style="font-size: 10px; padding: 1px 6px; margin-left: 4px;">You</span>' : ''}
+          </div>
+        </td>
         <td class="text-meta">${dateStr}</td>
-        <td class="text-meta">${durationText}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${statusBadge}
+            ${item.durationMinutes ? `<span class="text-meta" style="font-size: 12px;">${item.durationMinutes}m</span>` : ''}
+          </div>
+        </td>
         <td class="text-meta">${item.participantCount}</td>
         <td style="text-align: right;">
-          <a href="/lobby/${encodeURIComponent(item.code)}" class="btn btn-secondary" style="padding: 4px 10px; font-size: var(--font-size-meta);">
+          <a href="/lobby/${encodeURIComponent(item.code)}" class="btn btn-secondary btn-sm">
             ${item.isEnded ? 'View' : 'Rejoin'}
           </a>
         </td>

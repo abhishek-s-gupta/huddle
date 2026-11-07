@@ -1,55 +1,77 @@
-/* Neutral Dark Theme for Video Call Screen */
+/* ==========================================================================
+   HUDDLE CALL SCREEN STYLES (Neutral Zinc Dark Theme)
+   ========================================================================== */
+
 body.in-call {
-  background-color: #0F0F11;
-  color: #F4F4F5;
+  background-color: #09090B;
+  color: #FAFAFA;
   overflow: hidden;
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Call Header */
+/* 1. Header Bar */
 .call-header {
-  height: 52px;
+  height: 56px;
   background-color: #141416;
-  border-bottom: 1px solid #26262A;
-  padding: 0 20px;
+  border-bottom: 1px solid #27272A;
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  z-index: 10;
+  z-index: 20;
 }
 
 .call-title-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .room-badge {
-  background-color: #1F1F23;
-  border: 1px solid #2F2F35;
+  background-color: #18181B;
+  border: 1px solid #27272A;
   border-radius: var(--radius-sm);
   padding: 3px 8px;
-  font-family: monospace;
-  font-size: var(--font-size-meta);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
   color: #A1A1AA;
 }
 
 .security-indicator {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
+  gap: 5px;
+  font-size: 11px;
+  font-weight: var(--font-medium);
   color: var(--success);
-  background-color: rgba(22, 163, 74, 0.1);
+  background-color: rgba(22, 163, 74, 0.12);
   padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(22, 163, 74, 0.2);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(22, 163, 74, 0.25);
 }
 
-/* Call Main Layout */
+.call-timer-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: #A1A1AA;
+  background-color: #18181B;
+  border: 1px solid #27272A;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.call-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 2. Call Main Stage */
 .call-main {
   flex: 1;
   display: flex;
@@ -63,7 +85,8 @@ body.in-call {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  padding: 16px;
+  padding: var(--space-4);
+  padding-bottom: 84px; /* clearance for floating control dock */
 }
 
 /* Screen Sharing Stage */
@@ -71,12 +94,13 @@ body.in-call {
   flex: 1;
   position: relative;
   background-color: #000000;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid #27272A;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .screen-share-stage video {
@@ -87,25 +111,62 @@ body.in-call {
 
 .sharing-banner {
   position: absolute;
-  top: 16px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(37, 99, 235, 0.9);
+  background-color: rgba(37, 99, 235, 0.95);
+  backdrop-filter: blur(8px);
   color: #FFFFFF;
   padding: 6px 14px;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-meta);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-medium);
   display: flex;
   align-items: center;
-  gap: 12px;
-  z-index: 20;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-lg);
+  z-index: 30;
 }
 
-/* Video Grid Layout (Adaptive 1-6+ participants) */
+/* Pinned Tile Stage */
+.pinned-container {
+  flex: 1;
+  background-color: #000000;
+  border-radius: var(--radius-lg);
+  border: 1px solid #27272A;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pinned-container video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.stage-area.has-pinned .video-grid {
+  flex: none;
+  height: 140px;
+  display: flex;
+  overflow-x: auto;
+  gap: var(--space-3);
+  padding-bottom: 4px;
+}
+
+.stage-area.has-pinned .video-tile {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+/* 3. Adaptive Video Grid */
 .video-grid {
   flex: 1;
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
   height: 100%;
   align-content: center;
@@ -113,10 +174,9 @@ body.in-call {
   overflow-y: auto;
 }
 
-/* Dynamic Grid Reflow */
 .video-grid[data-count="1"] {
   grid-template-columns: 1fr;
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
@@ -143,44 +203,19 @@ body.in-call {
   grid-template-rows: 1fr 1fr 1fr;
 }
 
-/* Pinned Tile Mode */
-.stage-area.has-pinned .video-grid {
-  flex: none;
-  height: 140px;
-  display: flex;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.stage-area.has-pinned .video-tile {
-  width: 220px;
-  flex-shrink: 0;
-}
-
-.pinned-container {
-  flex: 1;
-  background-color: #000000;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  position: relative;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Individual Video Tile */
+/* 4. Video Tile */
 .video-tile {
-  background-color: #18181B;
+  background-color: #141416;
   border: 1px solid #27272A;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 9;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 160ms ease-out, transform 160ms ease-out;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .video-tile video {
@@ -193,24 +228,26 @@ body.in-call {
   transform: scaleX(-1);
 }
 
+/* Active Speaker Ring */
 .video-tile.is-speaking {
   border-color: var(--accent) !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5) !important;
 }
 
+/* Avatar Fallback */
 .tile-avatar {
   position: absolute;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #27272A;
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-full);
+  background-color: #2563EB;
   color: #FFFFFF;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: var(--font-bold);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #3F3F46;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
 .tile-meta-bar {
@@ -222,18 +259,22 @@ body.in-call {
   align-items: center;
   justify-content: space-between;
   pointer-events: none;
+  z-index: 10;
 }
 
 .tile-name-tag {
-  background-color: rgba(20, 20, 22, 0.75);
-  backdrop-filter: blur(4px);
-  padding: 3px 8px;
+  background-color: rgba(20, 20, 22, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-meta);
-  color: #FFFFFF;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-medium);
+  color: #FAFAFA;
   display: flex;
   align-items: center;
   gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-xs);
 }
 
 .tile-actions {
@@ -243,73 +284,94 @@ body.in-call {
 }
 
 .tile-icon-btn {
-  background-color: rgba(20, 20, 22, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
+  background-color: rgba(20, 20, 22, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FAFAFA;
   border-radius: var(--radius-sm);
-  padding: 4px;
+  padding: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .tile-icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(39, 39, 42, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .badge-hand {
   background-color: #F59E0B;
   color: #000000;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  border-radius: var(--radius-full);
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-sm);
 }
 
-/* Bottom Control Dock */
+/* 5. Floating Bottom Control Dock */
 .call-controls {
-  height: 68px;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #141416;
-  border-top: 1px solid #26262A;
-  padding: 0 20px;
+  border: 1px solid #27272A;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  z-index: 10;
+  gap: var(--space-2);
+  z-index: 40;
 }
 
-.control-group {
+.dock-cluster {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+}
+
+.dock-divider {
+  width: 1px;
+  height: 22px;
+  background-color: #27272A;
+  margin: 0 4px;
 }
 
 .dock-btn {
   height: 42px;
   min-width: 42px;
   padding: 0 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid #2F2F35;
+  border-radius: var(--radius-full);
+  border: 1px solid #27272A;
   background-color: #1E1E22;
-  color: #F4F4F5;
+  color: #FAFAFA;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   cursor: pointer;
-  font-size: var(--font-size-meta);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-medium);
   font-family: inherit;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
   position: relative;
+  user-select: none;
 }
 
 .dock-btn:hover {
-  background-color: #27272D;
+  background-color: #27272A;
+  border-color: #3F3F46;
+  transform: scale(1.04);
+}
+
+.dock-btn:active {
+  transform: scale(0.96);
 }
 
 .dock-btn.active {
@@ -319,39 +381,43 @@ body.in-call {
 }
 
 .dock-btn.btn-muted {
-  background-color: rgba(220, 38, 38, 0.15);
+  background-color: var(--danger);
   border-color: var(--danger);
-  color: #F87171;
+  color: #FFFFFF;
 }
 
 .dock-btn-danger {
   background-color: var(--danger);
   border-color: var(--danger);
   color: #FFFFFF;
+  border-radius: var(--radius-full);
+  padding: 0 16px;
 }
 
 .dock-btn-danger:hover {
   background-color: var(--danger-hover);
+  border-color: var(--danger-hover);
 }
 
 .unread-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -3px;
+  right: -3px;
   background-color: var(--accent);
   color: #FFFFFF;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-bold);
+  padding: 1px 5px;
   border: 2px solid #141416;
+  line-height: 1;
 }
 
-/* Side Panel (Chat, Files, Participants) */
+/* 6. Side Panel (Chat, Files, People) */
 .side-panel {
-  width: 340px;
+  width: 360px;
   background-color: #141416;
-  border-left: 1px solid #26262A;
+  border-left: 1px solid #27272A;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -361,7 +427,8 @@ body.in-call {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 15;
+  z-index: 25;
+  box-shadow: var(--shadow-xl);
 }
 
 .side-panel.open {
@@ -370,9 +437,9 @@ body.in-call {
 }
 
 .panel-header {
-  height: 52px;
-  border-bottom: 1px solid #26262A;
-  padding: 0 16px;
+  height: 56px;
+  border-bottom: 1px solid #27272A;
+  padding: 0 var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -380,24 +447,28 @@ body.in-call {
 
 .panel-tabs {
   display: flex;
-  gap: 4px;
+  background-color: #18181B;
+  border: 1px solid #27272A;
+  border-radius: var(--radius-lg);
+  padding: 2px;
 }
 
 .panel-tab {
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  background: none;
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  background: transparent;
   border: none;
   color: #A1A1AA;
-  font-size: var(--font-size-meta);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .panel-tab.active {
-  background-color: #26262A;
-  color: #FFFFFF;
-  font-weight: 500;
+  background-color: #27272A;
+  color: #FAFAFA;
+  font-weight: var(--font-semibold);
 }
 
 .panel-content {
@@ -418,34 +489,99 @@ body.in-call {
   display: flex;
 }
 
-/* Whiteboard Stage Overlay */
-.whiteboard-stage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #FFFFFF;
-  z-index: 25;
-  display: none;
-  flex-direction: column;
-}
-
-.whiteboard-stage.active {
+/* Chat Bubbles */
+.chat-msg-row {
   display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-3);
 }
 
+.chat-msg-row.is-self {
+  align-items: flex-end;
+}
+
+.chat-msg-row.is-peer {
+  align-items: flex-start;
+}
+
+.chat-msg-header {
+  font-size: 11px;
+  color: #71717A;
+  margin-bottom: 3px;
+  display: flex;
+  gap: 6px;
+}
+
+.chat-bubble {
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  line-height: var(--leading-normal);
+  max-width: 85%;
+  word-break: break-word;
+  box-shadow: var(--shadow-xs);
+}
+
+.chat-bubble.is-self {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-bubble.is-peer {
+  background-color: #27272A;
+  color: #FAFAFA;
+  border-bottom-left-radius: 2px;
+}
+
+.system-msg-pill {
+  display: inline-block;
+  margin: 6px auto;
+  padding: 3px 10px;
+  background-color: #18181B;
+  border: 1px solid #27272A;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: #A1A1AA;
+  text-align: center;
+}
+
+/* 7. Responsive adjustments */
 @media (max-width: 768px) {
+  .call-header {
+    padding: 0 var(--space-3);
+  }
+
+  .room-badge, .security-indicator span {
+    display: none;
+  }
+
+  .call-controls {
+    bottom: 12px;
+    padding: 4px 6px;
+    gap: 4px;
+    max-width: calc(100vw - 24px);
+    overflow-x: auto;
+  }
+
+  .dock-btn {
+    height: 38px;
+    min-width: 38px;
+    padding: 0 8px;
+  }
+
+  .dock-btn span {
+    display: none;
+  }
+
   .side-panel {
     width: 100%;
     position: fixed;
-    top: 52px;
-    bottom: 68px;
+    top: 56px;
+    bottom: 72px;
     left: 0;
     right: 0;
-  }
-  
-  .dock-btn span {
-    display: none;
+    border-left: none;
+    border-top: 1px solid #27272A;
   }
 }

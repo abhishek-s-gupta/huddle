@@ -1,4 +1,7 @@
-/* Whiteboard Stage & Toolbar */
+/* ==========================================================================
+   HUDDLE WHITEBOARD STYLES (Clean Vector Studio Aesthetic)
+   ========================================================================== */
+
 .whiteboard-stage {
   position: absolute;
   top: 0;
@@ -6,54 +9,56 @@
   right: 0;
   bottom: 0;
   background-color: #FAFAFA;
-  z-index: 20;
+  z-index: 50;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .whiteboard-topbar {
-  height: 48px;
+  height: 52px;
   background-color: #FFFFFF;
   border-bottom: 1px solid var(--border-color);
-  padding: 0 16px;
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 25;
+  z-index: 55;
+  box-shadow: var(--shadow-xs);
 }
 
 .whiteboard-tools-dock {
   position: absolute;
-  top: 60px;
-  left: 16px;
+  top: 72px;
+  left: 20px;
   background-color: #FFFFFF;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  z-index: 25;
+  z-index: 55;
 }
 
 .wb-tool-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-primary);
+  color: #3F3F46;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
 
 .wb-tool-btn:hover {
   background-color: var(--bg-surface-subtle);
+  color: var(--text-primary);
 }
 
 .wb-tool-btn.active {
@@ -64,18 +69,18 @@
 
 .whiteboard-palette-dock {
   position: absolute;
-  bottom: 16px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #FFFFFF;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  padding: 8px 18px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  z-index: 25;
+  gap: 14px;
+  z-index: 35;
 }
 
 .color-swatch {
@@ -84,7 +89,8 @@
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: var(--shadow-xs);
 }
 
 .color-swatch:hover {
@@ -93,17 +99,24 @@
 
 .color-swatch.active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px #FFFFFF;
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 3px var(--accent);
 }
 
 .stroke-width-btn {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
-  background: transparent;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.stroke-width-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
 .stroke-width-btn.active {
@@ -117,6 +130,9 @@
   position: relative;
   overflow: hidden;
   cursor: crosshair;
+  background-color: #FAFAFA;
+  background-image: radial-gradient(#D4D4D8 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
 }
 
 #whiteboard-canvas {
@@ -129,10 +145,11 @@
 }
 
 .zoom-badge {
-  font-size: var(--font-size-meta);
-  font-family: monospace;
-  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
   background-color: var(--bg-surface-subtle);
   border: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }

@@ -4,46 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Console — Huddle</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/main.css">
   <style>
     .admin-container {
       max-width: 1040px;
-      margin: 32px auto;
-      padding: 0 24px;
+      margin: var(--space-8) auto;
+      padding: 0 var(--space-6);
     }
 
     .admin-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: var(--space-8);
     }
 
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: var(--space-5);
+      margin-bottom: var(--space-8);
     }
 
     .stat-card {
       background-color: var(--bg-surface);
-      border: var(--border-width) solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) var(--space-6);
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-md);
     }
 
     .stat-number {
-      font-size: 24px;
-      font-weight: 700;
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-bold);
       color: var(--text-primary);
-      margin-top: 4px;
+      margin-top: 6px;
+      line-height: var(--leading-none);
+      letter-spacing: -0.02em;
     }
 
     .section-title {
-      font-size: 16px;
-      margin-bottom: 12px;
+      font-size: var(--font-size-md);
+      margin-bottom: var(--space-3);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -51,37 +61,11 @@
 
     .admin-card {
       background-color: var(--bg-surface);
-      border: var(--border-width) solid var(--border-color);
-      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
       overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      font-size: var(--font-size-xs);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      padding: 12px 20px;
-      border-bottom: var(--border-width) solid var(--border-color);
-      background-color: var(--bg-surface-subtle);
-    }
-
-    td {
-      padding: 14px 20px;
-      border-bottom: var(--border-width) solid var(--border-color);
-      font-size: var(--font-size-body);
-    }
-
-    tr:last-child td {
-      border-bottom: none;
+      margin-bottom: var(--space-8);
+      box-shadow: var(--shadow-sm);
     }
 
     @media (max-width: 768px) {
@@ -94,33 +78,40 @@
 <body>
   <header class="app-header">
     <div class="brand-mark">
-      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z" />
-        <rect x="3" y="6" width="12" height="12" rx="2" />
+      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#2563EB"/>
+        <rect x="7" y="10" width="12" height="12" rx="3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 14.2L24.2 11.1C24.7 10.8 25.3 11.2 25.3 11.8V20.2C25.3 20.8 24.7 21.2 24.2 20.9L19 17.8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Huddle Admin</span>
     </div>
 
     <div class="user-profile">
-      <a href="/dashboard" class="btn btn-secondary" style="padding: 4px 12px; font-size: var(--font-size-meta);">Dashboard</a>
-      <button id="btn-theme-toggle" class="btn-icon" aria-label="Toggle theme">
+      <a href="/dashboard" class="btn btn-secondary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Dashboard
+      </a>
+      <button id="btn-theme-toggle" class="btn-icon" aria-label="Toggle theme" title="Toggle theme">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
         </svg>
       </button>
-      <button id="btn-logout" class="btn btn-secondary" style="padding: 4px 12px; font-size: var(--font-size-meta);">Sign Out</button>
+      <button id="btn-logout" class="btn btn-secondary btn-sm">Sign Out</button>
     </div>
   </header>
 
   <main class="admin-container">
     <div class="admin-header">
       <div>
-        <h1>System Administration</h1>
+        <h1 style="font-size: var(--font-size-xl); margin-bottom: 4px;">System Administration</h1>
         <p class="text-meta">Manage active meeting rooms, view registered members, and enforce platform controls.</p>
       </div>
-      <button id="btn-refresh" class="btn btn-secondary">
+      <button id="btn-refresh" class="btn btn-secondary btn-sm">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
@@ -133,19 +124,19 @@
     <!-- Quick Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="text-meta">Total Users</div>
+        <div class="text-meta" style="font-weight: 500;">Total Users</div>
         <div class="stat-number" id="stat-users">0</div>
       </div>
       <div class="stat-card">
-        <div class="text-meta">Active Rooms</div>
+        <div class="text-meta" style="font-weight: 500;">Active Rooms</div>
         <div class="stat-number" id="stat-active-rooms">0</div>
       </div>
       <div class="stat-card">
-        <div class="text-meta">Total Meetings</div>
+        <div class="text-meta" style="font-weight: 500;">Total Meetings</div>
         <div class="stat-number" id="stat-total-rooms">0</div>
       </div>
       <div class="stat-card">
-        <div class="text-meta">Audit Logs</div>
+        <div class="text-meta" style="font-weight: 500;">Audit Logs</div>
         <div class="stat-number" id="stat-audit">0</div>
       </div>
     </div>
@@ -174,7 +165,7 @@
           </tbody>
         </table>
       </div>
-      <div id="empty-active-rooms" style="display: none; padding: 32px; text-align: center; color: var(--text-secondary);">
+      <div id="empty-active-rooms" style="display: none; padding: 40px; text-align: center; color: var(--text-secondary);">
         No active meetings currently running.
       </div>
     </div>

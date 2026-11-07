@@ -45,6 +45,14 @@ async function init() {
 
     const initials = me.user.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     avatarInitials.textContent = initials;
+    const colors = ['#2563EB', '#7C3AED', '#DB2777', '#EA580C', '#059669', '#0891B2', '#4F46E5', '#D97706'];
+    let hash = 0;
+    for (let i = 0; i < (me.user.displayName || '').length; i++) {
+      hash = me.user.displayName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    avatarInitials.style.backgroundColor = colors[Math.abs(hash) % colors.length];
+    const chip = document.getElementById('lobby-user-chip');
+    if (chip) chip.textContent = `${me.user.displayName} (You)`;
 
     // Fetch room info
     roomInfo = await api.get(`/api/rooms/${encodeURIComponent(roomCode)}`);

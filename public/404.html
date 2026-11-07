@@ -4,15 +4,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Page Not Found — Huddle</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .error-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+      text-align: center;
+    }
+
+    .error-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10) var(--space-8);
+      max-width: 440px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .error-code-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background-color: var(--danger-subtle);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-semibold);
+      color: var(--danger-text);
+      margin-bottom: var(--space-5);
+    }
+
+    .error-card h1 {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-bold);
+      margin-bottom: var(--space-2);
+    }
+
+    .error-card p {
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-6);
+      line-height: var(--leading-relaxed);
+    }
+  </style>
 </head>
-<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-  <div style="text-align: center; max-width: 400px; padding: 24px;">
-    <div style="font-size: 48px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">404</div>
-    <h1 style="margin-bottom: 8px;">Page not found</h1>
-    <p style="margin-bottom: 24px;">The room or resource you are looking for does not exist or may have been closed.</p>
-    <a href="/dashboard" class="btn btn-primary">Return to Dashboard</a>
+<body>
+  <div class="error-page-wrapper">
+    <div class="error-card">
+      <div class="brand-mark" style="margin-bottom: var(--space-6);">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#2563EB"/>
+          <rect x="7" y="10" width="12" height="12" rx="3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 14.2L24.2 11.1C24.7 10.8 25.3 11.2 25.3 11.8V20.2C25.3 20.8 24.7 21.2 24.2 20.9L19 17.8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Huddle</span>
+      </div>
+
+      <div class="error-code-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        Error 404
+      </div>
+
+      <h1>Meeting Not Found</h1>
+      <p>The meeting room or resource you are looking for does not exist, has ended, or the link may have expired.</p>
+
+      <a href="/dashboard" class="btn btn-primary" style="width: 100%;">Return to Dashboard</a>
+    </div>
   </div>
 </body>
 </html>

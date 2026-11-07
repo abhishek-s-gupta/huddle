@@ -20,13 +20,31 @@ const errorPassword = document.getElementById('error-password');
 const errorGeneral = document.getElementById('error-general');
 const formGeneralError = document.getElementById('form-general-error');
 
+const btnTogglePwd = document.getElementById('btn-toggle-pwd');
+const pwdIconShow = document.getElementById('pwd-icon-show');
+const pwdIconHide = document.getElementById('pwd-icon-hide');
+
+// Password Visibility Toggle
+if (btnTogglePwd) {
+  btnTogglePwd.addEventListener('click', () => {
+    const isPwd = inputPassword.getAttribute('type') === 'password';
+    inputPassword.setAttribute('type', isPwd ? 'text' : 'password');
+    if (pwdIconShow && pwdIconHide) {
+      pwdIconShow.style.display = isPwd ? 'none' : 'block';
+      pwdIconHide.style.display = isPwd ? 'block' : 'none';
+    }
+  });
+}
+
 function clearErrors() {
   [errorName, errorEmail, errorPassword, errorGeneral].forEach(el => {
-    el.textContent = '';
-    el.style.display = 'none';
+    if (el) {
+      el.textContent = '';
+      el.style.display = 'none';
+    }
   });
-  [inputName, inputEmail, inputPassword].forEach(el => el.classList.remove('input-error'));
-  formGeneralError.style.display = 'none';
+  [inputName, inputEmail, inputPassword].forEach(el => el?.classList.remove('input-error'));
+  if (formGeneralError) formGeneralError.style.display = 'none';
 }
 
 export function switchMode(signup) {
@@ -90,7 +108,7 @@ form.addEventListener('submit', async (e) => {
   if (hasError) return;
 
   btnSubmit.disabled = true;
-  btnText.textContent = isSignUp ? 'Creating account...' : 'Signing in...';
+  btnText.innerHTML = `<span class="spinner" style="margin-right: 6px;"></span> ${isSignUp ? 'Creating account...' : 'Signing in...'}`;
 
   try {
     if (isSignUp) {

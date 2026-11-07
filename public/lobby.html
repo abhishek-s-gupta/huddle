@@ -4,39 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lobby — Huddle</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/main.css">
   <style>
-    .lobby-container {
-      max-width: 900px;
+    .lobby-wrapper {
+      max-width: 980px;
       margin: 40px auto;
-      padding: 0 24px;
+      padding: 0 var(--space-6);
     }
 
-    .lobby-grid {
+    .lobby-layout {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 32px;
-      align-items: start;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: var(--space-8);
+      align-items: center;
+    }
+
+    /* Video Preview Card */
+    .preview-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
     }
 
     .preview-card {
-      background-color: #141416;
-      border: var(--border-width) solid var(--border-color);
-      border-radius: var(--radius-lg);
+      background-color: #0F0F11;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
       position: relative;
       aspect-ratio: 16 / 9;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: var(--shadow-lg);
     }
 
     #preview-video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* mirror preview */
+      transform: scaleX(-1);
     }
 
     .preview-placeholder {
@@ -44,79 +53,89 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: var(--space-3);
       color: #A1A1AA;
     }
 
     .avatar-large {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background-color: #27272A;
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-full);
+      background-color: #2563EB;
       color: #FFFFFF;
       font-size: 24px;
-      font-weight: 600;
+      font-weight: var(--font-bold);
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .preview-name-chip {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background-color: rgba(15, 15, 17, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-medium);
+      color: #FAFAFA;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 10;
     }
 
     .preview-controls-overlay {
       position: absolute;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 14px;
+      right: 14px;
       display: flex;
-      gap: 12px;
-      background-color: rgba(20, 20, 22, 0.75);
-      padding: 8px 14px;
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(8px);
+      gap: var(--space-2);
+      z-index: 10;
     }
 
     .control-btn {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
-      border: var(--border-width) solid rgba(255, 255, 255, 0.15);
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background-color: rgba(24, 24, 27, 0.85);
+      backdrop-filter: blur(8px);
+      color: #FAFAFA;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background-color var(--transition-fast), border-color var(--transition-fast);
+      transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+      box-shadow: var(--shadow-sm);
     }
 
     .control-btn:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(39, 39, 42, 0.95);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.04);
     }
 
     .control-btn.btn-muted {
       background-color: var(--danger);
       border-color: var(--danger);
+      color: #FFFFFF;
     }
 
-    .lobby-info-card {
+    /* Microphone meter */
+    .mic-meter-box {
       background-color: var(--bg-surface);
-      border: var(--border-width) solid var(--border-color);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 28px;
-    }
-
-    .room-header-title {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-
-    .mic-meter-wrapper {
-      margin-top: 12px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow-xs);
     }
 
     .meter-label-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: var(--font-size-xs);
       color: var(--text-secondary);
       margin-bottom: 6px;
@@ -126,7 +145,7 @@
       width: 100%;
       height: 6px;
       background-color: var(--bg-surface-subtle);
-      border-radius: 3px;
+      border-radius: var(--radius-full);
       overflow: hidden;
     }
 
@@ -134,24 +153,58 @@
       width: 0%;
       height: 100%;
       background-color: var(--success);
+      border-radius: var(--radius-full);
       transition: width 60ms ease-out;
+    }
+
+    /* Right Settings Card */
+    .lobby-info-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .room-header-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-bold);
+      margin-bottom: var(--space-1);
+    }
+
+    .room-code-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      margin-bottom: var(--space-6);
     }
 
     .permission-banner {
       background-color: var(--accent-subtle);
-      border: var(--border-width) solid var(--accent);
+      border: 1px solid var(--accent-border);
       border-radius: var(--radius-md);
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      font-size: var(--font-size-meta);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-6);
+      font-size: var(--font-size-sm);
+      color: var(--accent-text);
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: var(--space-3);
     }
 
-    @media (max-width: 768px) {
-      .lobby-grid {
+    @media (max-width: 840px) {
+      .lobby-layout {
         grid-template-columns: 1fr;
+      }
+      .lobby-wrapper {
+        margin: 20px auto;
       }
     }
   </style>
@@ -160,19 +213,26 @@
   <!-- Header -->
   <header class="app-header">
     <div class="brand-mark">
-      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14v-4z" />
-        <rect x="3" y="6" width="12" height="12" rx="2" />
+      <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#2563EB"/>
+        <rect x="7" y="10" width="12" height="12" rx="3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 14.2L24.2 11.1C24.7 10.8 25.3 11.2 25.3 11.8V20.2C25.3 20.8 24.7 21.2 24.2 20.9L19 17.8" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>Huddle</span>
     </div>
 
     <div class="user-profile">
-      <a href="/dashboard" class="btn btn-secondary" style="padding: 4px 12px; font-size: var(--font-size-meta);">Exit to Dashboard</a>
+      <a href="/dashboard" class="btn btn-secondary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Dashboard
+      </a>
     </div>
   </header>
 
-  <main class="lobby-container">
+  <main class="lobby-wrapper">
     <div id="permission-warning" class="permission-banner" style="display: none;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
@@ -182,16 +242,18 @@
       <div id="permission-text">Camera and microphone access are required for full participation. You may still join with media disabled.</div>
     </div>
 
-    <div class="lobby-grid">
-      <!-- Media Preview -->
-      <div>
+    <div class="lobby-layout">
+      <!-- Media Preview Column -->
+      <div class="preview-card-wrapper">
         <div class="preview-card">
           <video id="preview-video" autoplay playsinline muted></video>
           
           <div class="preview-placeholder" id="preview-avatar" style="display: none;">
             <div class="avatar-large" id="avatar-initials">--</div>
-            <span id="avatar-name">Camera is off</span>
+            <span id="avatar-name" style="font-size: var(--font-size-sm); font-weight: 500;">Camera is off</span>
           </div>
+
+          <div class="preview-name-chip" id="lobby-user-chip">Ready to join</div>
 
           <div class="preview-controls-overlay">
             <button id="btn-toggle-mic" class="control-btn" aria-label="Toggle microphone" title="Toggle microphone">
@@ -213,9 +275,9 @@
         </div>
 
         <!-- Mic Volume Meter -->
-        <div class="mic-meter-wrapper">
+        <div class="mic-meter-box">
           <div class="meter-label-row">
-            <span>Microphone Level</span>
+            <span style="font-weight: 500;">Microphone</span>
             <span id="mic-status-text">Detecting voice...</span>
           </div>
           <div class="meter-track">
@@ -227,9 +289,10 @@
       <!-- Room Info & Join Options -->
       <div class="lobby-info-card">
         <h1 class="room-header-title" id="room-title">Meeting Room</h1>
-        <p class="text-meta" style="margin-bottom: 20px;">
-          Room Code: <span id="room-code-badge" style="font-family: monospace; font-weight: 600;">hud-xxx-xxx</span>
-        </p>
+        <div class="room-code-badge">
+          <span>Code:</span>
+          <span id="room-code-badge" style="color: var(--text-primary); font-weight: 600;">hud-xxx-xxx</span>
+        </div>
 
         <!-- Passcode if required -->
         <div class="form-group" id="group-passcode" style="display: none;">
@@ -262,7 +325,7 @@
 
         <div class="error-message" id="error-general" style="display: none; margin-bottom: 12px;"></div>
 
-        <button id="btn-join" class="btn btn-primary" style="width: 100%; margin-top: 12px; padding: 12px 16px;">
+        <button id="btn-join" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-4);">
           <span>Join Meeting</span>
         </button>
       </div>

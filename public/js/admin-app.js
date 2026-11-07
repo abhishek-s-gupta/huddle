@@ -93,12 +93,12 @@ async function loadOverview() {
           <td class="text-meta">${timeStr}</td>
           <td class="text-meta">${room.activeParticipants} participant${room.activeParticipants === 1 ? '' : 's'}</td>
           <td>
-            <span class="badge-status ${room.isLocked ? 'badge-ended' : 'badge-active'}">
+            <span class="badge ${room.isLocked ? 'badge-ended' : 'badge-active'}">
               ${room.isLocked ? 'Locked' : 'Open'}
             </span>
           </td>
           <td style="text-align: right;">
-            <button class="btn btn-danger btn-end-room" data-code="${escapeHtml(room.code)}" style="padding: 4px 10px; font-size: var(--font-size-meta);">
+            <button class="btn btn-danger btn-sm btn-end-room" data-code="${escapeHtml(room.code)}">
               End
             </button>
           </td>
@@ -129,11 +129,11 @@ async function loadOverview() {
         year: 'numeric'
       });
       tr.innerHTML = `
-        <td class="text-meta" style="font-family: monospace;">#${u.id}</td>
+        <td class="text-meta text-mono">#${u.id}</td>
         <td style="font-weight: 500;">${escapeHtml(u.display_name)}</td>
         <td class="text-meta">${escapeHtml(u.email)}</td>
         <td>
-          <span class="badge-status ${u.isAdmin ? 'badge-active' : 'badge-ended'}">
+          <span class="badge ${u.isAdmin ? 'badge-host' : 'badge-ended'}">
             ${u.isAdmin ? 'Admin' : 'Member'}
           </span>
         </td>
